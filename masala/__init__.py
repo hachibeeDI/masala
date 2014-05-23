@@ -59,14 +59,21 @@ class LambdaBuilder(object):
     >>> from result import Either
     >>> Either.right('hachi') >> LambdaBuilder().title()
     u'Hachi'
-    >>> Either.right(1) >> (LambdaBuilder() + 10)
+    >>> Either.right(1).match( \
+        LambdaBuilder() + 10, \
+        None)
     11
+    >>> Either.right(print) >> LambdaBuilder()('hello world!')
+    hello world!
     '''
     __slots__ = ()
 
     @classmethod
     def __getattr__(self, name):
         return _methodbuilder(name)
+
+    def __call__(self, *args, **kw):
+        return lambda func: func(*args, **kw)
 
     # TODO: implement all operators
     __add__ = _opp_builder(operator.add, "self + other")
@@ -80,7 +87,7 @@ class LambdaBuilder(object):
     __xor__ = _opp_builder(operator.xor, "self ^ other")
 
     if version_info[0] == 2:
-        __div__ = _opp_builder(operator.div , "self / other")
+        __div__ = _opp_builder(operator.div, "self / other")
     else:
         __div__ = _opp_builder(operator.truediv, "self / other")
     __divmod__ = _opp_builder(divmod, "self / other")

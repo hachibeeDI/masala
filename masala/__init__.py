@@ -50,20 +50,19 @@ def _methodbuilder(name):
 
 def _opp_builder(op, doc):
     def _dummy_method(dummy_self, other):
-        return CurryContainer(flip(op)) << other
+        return lambda trueself: op(trueself, other)
     return _dummy_method
 
 
 class LambdaBuilder(object):
     '''
     >>> from result import Either
-    >>> Either.right('hachi') >> LambdaBuilder().title()
+    >>> _ = LambdaBuilder()
+    >>> Either.right('hachi') >> _.title()
     u'Hachi'
-    >>> Either.right(1).match( \
-        LambdaBuilder() + 10, \
-        None)
-    11
-    >>> Either.right(print) >> LambdaBuilder()('hello world!')
+    >>> map(_ + 2, range(3))
+    [2, 3, 4]
+    >>> Either.right(print) >> _('hello world!')
     hello world!
     '''
     __slots__ = ()

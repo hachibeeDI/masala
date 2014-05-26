@@ -2,6 +2,7 @@
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
 import types
+from inspect import getargspec
 
 from .shorthand import Builder
 from .utils import (
@@ -25,10 +26,11 @@ class CurryContainer(object):
     [u'a', u'b', u'c']
     '''
 
-    __slots__ = ('func', 'args', 'argkw', )
+    __slots__ = ('func', 'maxarglen', 'args', 'argkw', )
 
     def __init__(self, func):
         self.func = func
+        self.maxarglen = len(getargspec(func).args)
         self.args = []
         self.argkw = []
 
@@ -43,9 +45,19 @@ class CurryContainer(object):
         return self
 
     def __call__(self, arg=None):
+        argslen = len(self.args + self.argkw) + bool(arg is not None)
+        if self.maxarglen < argslen:
+            raise TypeError('{0} takes at most {1} argument ({2} given)'.format(
+                self.func.__name__, self.maxarglen, argslen))
         if arg:
             self.__push_arg(arg)
         return self.func(*self.args, **dict(self.argkw))
+
+    def call(self, arg=None):
+        return self.__call__(arg)
+
+
+curried = CurryContainer
 
 
 if __name__ == '__main__':

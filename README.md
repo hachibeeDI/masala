@@ -17,6 +17,15 @@
 >>> cur('b')
 ['a', 'b', 'c']
 
+>>> from masala import curried
+>>> @curried
+... def sum5(a, b, c, d, e):
+...     return a + b + c + d + e
+...
+>>> sum0 = sum5 << 1 << 2 << 3 << 4 << 5
+>>> sum0.call()  # same as sum0()
+15
+
 ```
 
 

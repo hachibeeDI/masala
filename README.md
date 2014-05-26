@@ -22,14 +22,25 @@
 
 ### lambda
 
-
 ```python
 
 >>> from masala.result import Either
->>> from masala import LambdaBuilder as _
->>> Either.right('hachi') >> _.title()
+>>> from masala import Builder as _
+>>> Either.right('hachi') >> _.lambd.title()
 'Hachi'
->>> map(_ + 2, range(3))
+>>> map(_.l + 2, range(3))
 [2, 3, 4]
+
+```
+
+```python
+
+>>> from masala import Builder as _
+>>> Either.right('hachi') >> _.method.title().replace('i', 'U').replace('c', 'z').fin__()
+'HazhU'
+>>> Either.right(4) >> ((_.m + 4) * 'py'.title()).fin__()
+'PyPyPyPyPyPyPyPy'
+>>> (_.met + 1 + 2 + 3 + 4 + 5).apply__(0)
+15
 
 ```

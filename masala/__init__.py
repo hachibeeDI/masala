@@ -57,7 +57,6 @@ def _opp_builder(op, doc):
 class LambdaBuilder(object):
     '''
     >>> from result import Either
-    >>> _ = LambdaBuilder()
     >>> Either.right('hachi') >> _.title()
     u'Hachi'
     >>> map(_ + 2, range(3))
@@ -102,6 +101,9 @@ class LambdaBuilder(object):
     __ge__ = _opp_builder(operator.ge, "self >= other")
     __eq__ = _opp_builder(operator.eq, "self == other")
     __ne__ = _opp_builder(operator.ne, "self != other")
+
+
+LambdaBuilder = LambdaBuilder()
 
 
 if __name__ == '__main__':

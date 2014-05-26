@@ -28,8 +28,13 @@
 >>> from masala import Builder as _
 >>> Either.right('hachi') >> _.lambd.title()
 'Hachi'
+>>> replacer = _.lambd.replace(_, _)
+>>> replacer('hachi', 'chi', 'chiboee')
+'hachiboee'
 >>> map(_.l + 2, range(3))
 [2, 3, 4]
+>>> reduce(_.l + _, range(5))
+10
 
 ```
 

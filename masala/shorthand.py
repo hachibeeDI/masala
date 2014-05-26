@@ -2,6 +2,7 @@
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
 import operator
+from itertools import chain
 from sys import version_info
 
 from .utils import (
@@ -23,13 +24,40 @@ class Builder(object):
 Builder = Builder()
 
 
+def _does_arguments_has_placeholder(arg):
+    '''
+    ATTENTION: use Builders as placeholder
+    '''
+    return isinstance(arg, (Builder.__class__, LambdaBuilder.__class__, MethodComposer, ))
+
+
 def _methodbuilder(name):
-    return lambda *args, **kw: operator.methodcaller(name, *args, **kw)
+    def _(*a, **kw):
+        all_args = chain(a, kw.values())
+        num_of_placeholder = sum(1 for arg in all_args if _does_arguments_has_placeholder(arg))
+        if not num_of_placeholder:
+            return operator.methodcaller(name, *a, **kw)
+        a = list(a)
+        for i in range(num_of_placeholder):
+            a.pop(0)
+        # TODO: meta level generation
+        if num_of_placeholder == 1:
+            return lambda self, a1: operator.methodcaller(name, a1, *a, **kw)(self)
+        elif num_of_placeholder == 2:
+            return lambda self, a1, a2: operator.methodcaller(name, a1, a2, *a, **kw)(self)
+        elif num_of_placeholder == 3:
+            return lambda self, a1, a2, a3: operator.methodcaller(name, a1, a2, a3, *a, **kw)(self)
+        else:
+            raise NotImplementedError('not max len of placeholder is 3 yet')
+    return _
 
 
 def _opp_builder(op, doc):
     def _dummy_method(dummy_self, other):
-        return lambda trueself: op(trueself, other)
+        if isinstance(other, (Builder.__class__, LambdaBuilder.__class__, MethodComposer, )):
+            return lambda trueself, trueother: op(trueself, trueother)
+        else:
+            return lambda trueself: op(trueself, other)
     return _dummy_method
 
 

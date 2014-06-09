@@ -5,6 +5,7 @@ import types
 from inspect import getargspec
 
 from .shorthand import Builder
+lambd = Builder.l
 from .utils import (
     expr,
     flip,

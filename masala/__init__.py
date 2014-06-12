@@ -6,6 +6,7 @@ from inspect import getargspec
 
 from .shorthand import Builder
 lambd = Builder.l
+from .match import Match, Wildcard
 from .utils import (
     expr,
     flip,

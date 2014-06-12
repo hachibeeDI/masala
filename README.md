@@ -60,3 +60,45 @@
 15
 
 ```
+
+
+### Pattern Match
+
+
+```python
+
+>>> from masala import Match
+
+>>> match = Match(10)
+>>> if match.when(1):
+...    print 'boo'
+... elif match.when(10):
+...    print 'yieeeee'
+yieeeee
+
+
+>>> from masala import Wildcard as _
+
+>>> match = Match([1, 2, 3])
+>>> @match.when([2, 2, 2], let_=('one', 'two', 'thr'))
+... def case1(one, two, thr):
+...     print one, two, thr
+...     return one
+>>> @match.when([_, 2, 3], let_=('one', '_', 'thr'))
+... def case2(one, thr):
+...    print 'one: {0} two: {1} thr: {2}'.format(one, '_', thr)
+...    return one
+one: 1 two: _ thr: 3
+>>> assert match.end == 1
+
+>>> match = Match('python')
+>>> @match.when(_.isdigit(), let_='moo')
+... def case1(moo):
+...     print one, two, thr
+...     return one
+>>> @match.when(_ == 'python', let_=('a'))
+... def case2(a):
+...     return a
+>>> assert match.end == 'python'
+
+```

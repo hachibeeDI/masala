@@ -21,3 +21,13 @@ def constant(x, y):
 # @infix
 def compose(f_t_u, f_u_r):
     return lambda t: f_u_r(f_t_u(t))
+
+
+class _Apply(object):
+    def __rlshift__(self, other):
+        self.value = other
+        return self
+
+    def __rshift__(self, other):
+        return other(self.value)
+apply = _Apply()

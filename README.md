@@ -74,6 +74,14 @@
 >>> Stream().select(_ * 2).to_list() << [1, 2, 3]
 [2, 4, 6]
 
+>>> Stream(range(0, 100)).select(_ * 2).where(_ > 1000).first().lookup_()
+Empty: < None > reason => <class 'masala.datatype.stream.NoContentStreamError'>
+
+>>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000).lookup_()
+False
+>>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000).select(_ + 2).to_list().lookup_()
+Empty: < None > reason => <class 'masala.datatype.stream.NotIterableError'>
+
 ```
 
 

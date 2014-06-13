@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
+import __builtin__
+
 from six import PY2
 if PY2:
     from itertools import (
@@ -22,7 +24,21 @@ from .base import VariantType
 from ..utils import compose
 
 
+class NoContentStreamError(Exception):
+    pass
+
+
+class LessContentStreamError(Exception):
+    pass
+
+
+class NotIterableError(Exception):
+    pass
+
+
 class Stream(VariantType):
+    __slots__ = ('value', 'xs', )
+
     def __init__(self, xs=None):
         self.xs = xs
         super(Stream, self).__init__(lambda ys: ys)
@@ -34,19 +50,39 @@ class Stream(VariantType):
         self.value = compose(self.value, l_T_to_l_U)
         return self
 
-    # def __ror__(self, l_T_to_l_U):
-    #     return self.map(l_T_to_l_U)
-
     def __lshift__(self, xs):
         return self.value(xs)
 
-    def __call__(self, xs=None):
+    def lookup_(self, xs=None):
         if self.xs and xs:
             raise TypeError('Too many arguments')
 
         if self.xs:
             return self.value(self.xs)
         return self.value(xs)
+
+    def __call__(self, xs=None):
+        return self.lookup_(xs)
+
+
+class Empty(Stream):
+    __slots__ = ('value', 'xs', 'error', )
+
+    def __init__(self, error=None):
+        self.error = error
+        super(Stream, self).__init__(None)
+
+    def map(self, l_T_to_l_U):
+        return self
+
+    def __lshift__(self, xs):
+        return self
+
+    def __call__(self, xs=None):
+        return self
+
+    def __repr__(self):
+        return super(Stream, self).__repr__() + " reason => " + str(type(self.error))
 
 
 # class OrderedStream(Stream):
@@ -70,16 +106,14 @@ def dispatch_stream(original_query):
     # TODO: should be methodtype?
     # TODO: should support MethodComposer?
     def _method_chaining_base(self, *args, **kw):
+        if isinstance(self, Empty):
+            return self
         return self.map(lambda xs: original_query(xs, *args, **kw))
     setattr(Stream, func_name, _method_chaining_base)
 
 
 @dispatch_stream
 def select(xs, y_from_x):
-    '''
-    >>> range(10) | select(lambda x: x * x) | to_tuple()
-    (0, 1, 4, 9, 16, 25, 36, 49, 64, 81)
-    '''
     for x in xs:
         yield y_from_x(x)
 
@@ -163,25 +197,7 @@ def all(xs, predicate):
 
 @dispatch_stream
 def any(xs, predicate=lambda x: True):
-    '''
-    >>> [1, 2, 3] | any(lambda x: isinstance(x, int))
-    True
-    >>> [1, 'b', 3] | any(lambda x: isinstance(x, int))
-    True
-    >>> ['a', 'b', 'c'] | any(lambda x: isinstance(x, int))
-    False
-    >>> [] | any(lambda x: isinstance(x, int))
-    False
-
-    >>> [1, 2, 3] | any()
-    True
-    >>> [] | any()
-    False
-    '''
-    for x in xs:
-        if predicate(x):
-            return True
-    return False
+    return __builtin__.any(x for x in xs if predicate(x))
 
 
 @dispatch_stream
@@ -280,33 +296,23 @@ def distinct(xs):
 @dispatch_stream
 def element_at(xs, index):
     '''
-    >>> [0, 1, 2, 3] | element_at(2)
+    >>> Stream([0, 1, 2, 3]).element_at(2).lookup_()
     2
-    >>> [0, 1, 2, 3] | element_at(4)
-    Traceback (most recent call last):
-        ...
-    IndexError: Index 4 is out of range
-    >>> [] | element_at(0)
-    Traceback (most recent call last):
-        ...
-    IndexError: Index 0 is out of range
+    >>> Stream([0, 1, 2, 3]).element_at(10).lookup_()
+    Empty: < None > reason => <class 'masala.datatype.stream.LessContentStreamError'>
     '''
-    sentinel = []
-    result = xs | element_at_or_default(index, sentinel)
-    if result is sentinel:
-        raise IndexError('Index %d is out of range' % index)
-    else:
-        return result
+    for i, x in enumerate(xs):
+        if i == index:
+            return x
+    return Empty(LessContentStreamError())
 
 
 @dispatch_stream
 def element_at_or_default(xs, index, default_value):
     '''
-    >>> [0, 1, 2, 3] | element_at_or_default(2, 'hi')
+    >>> Stream([0, 1, 2, 3]).element_at_or_default(2, 'hi').lookup_()
     2
-    >>> [0, 1, 2, 3] | element_at_or_default(4, 'hi')
-    'hi'
-    >>> [] | element_at_or_default(0, 'hi')
+    >>> Stream([0, 1, 2, 3]).element_at_or_default(4, 'hi').lookup_()
     'hi'
     '''
     for i, x in enumerate(xs):
@@ -347,40 +353,14 @@ def except_from(xs, xsd):
 
 @dispatch_stream
 def first(xs, predicate=lambda x: True):
-    '''
-    >>> [0, 1, 2, 3] | first()
-    0
-    >>> [0, 1, 2, 3] | first(lambda x: 0 < x and x % 2 == 0)
-    2
-    >>> [] | first()
-    Traceback (most recent call last):
-      ...
-    ValueError: Sequence must contain some element
-    >>> ('abc' | first()).upper()
-    'A'
-    '''
-    sentinel = []
-    result = xs | first_or_default(sentinel, predicate)
-    if result is sentinel:
-        raise ValueError('Sequence must contain some element')
-    else:
-        return result
+    for x in xs:
+        if predicate(x):
+            return x
+    return Empty(NoContentStreamError())
 
 
 @dispatch_stream
 def first_or_default(xs, default_value, predicate=lambda x: True):
-    '''
-    >>> [0, 1, 2, 3] | first_or_default('hi')
-    0
-    >>> [] | first_or_default('hi')
-    'hi'
-    >>> [0, 1, 2, 3] | first_or_default('hi', lambda x: 0 < x and x % 2 == 0)
-    2
-    >>> [1, 3, 5, 7] | first_or_default('hi', lambda x: 0 < x and x % 2 == 0)
-    'hi'
-    >>> [] | first_or_default('hi', lambda x: 0 < x and x % 2 == 0)
-    'hi'
-    '''
     for x in xs:
         if predicate(x):
             return x
@@ -489,15 +469,7 @@ def repeat(x, n=None):
 
 @dispatch_stream
 def reverse(xs):
-    '''
-    >>> range(10) | reverse() | to_tuple()
-    (9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-    >>> [1] | reverse() | to_tuple()
-    (1,)
-    >>> [] | reverse() | to_tuple()
-    ()
-    '''
-    return reversed(xs | to_list())
+    return reversed(list(xs))
 
 
 @dispatch_stream
@@ -640,7 +612,7 @@ def sum(xs, y_from_x=lambda x: x):
     >>> range(10) | sum(lambda x: -x)
     -45
     '''
-    return __builtins__.sum(y_from_x(x) for x in xs)
+    return __builtin__.sum(y_from_x(x) for x in xs)
 
 
 @dispatch_stream
@@ -749,10 +721,15 @@ def to_dict(xs, key_from_x, value_from_x=lambda x: x):
 @dispatch_stream
 def to_list(xs):
     '''
-    >>> range(10) | to_list()
+    >>> Stream(xrange(10)).to_list()
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    >>> Stream(True).to_list()
+    Empty: < None > reason => <class 'masala.datatype.stream.NotIterableError'>
     '''
-    return list(xs)
+    try:
+        return list(xs)
+    except TypeError as e:
+        return Empty(NotIterableError(e.message))
 
 
 @dispatch_stream

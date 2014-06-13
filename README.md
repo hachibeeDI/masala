@@ -33,7 +33,7 @@
 
 ```python
 
->>> from masala.result import Either
+>>> from masala.datatype import Either
 >>> from masala import lambd as _
 >>> Either.right('hachi') >> _.title()
 'Hachi'

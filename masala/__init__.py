@@ -13,6 +13,7 @@ from .utils import (
     identity,
     constant,
     compose,
+    apply,
 )
 
 

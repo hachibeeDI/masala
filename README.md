@@ -33,8 +33,8 @@
 
 ```python
 
->>> from masala.datatype import Either
 >>> from masala import lambd as _
+>>> from masala.datatype import Either
 >>> Either.right('hachi') >> _.title()
 'Hachi'
 >>> replacer = _.replace(_, _)
@@ -58,6 +58,21 @@
 'PyPyPyPyPyPyPyPy'
 >>> (_.met + 1 + 2 + 3 + 4 + 5).apply__(0)
 15
+
+```
+
+### list processing
+
+```python
+
+>>> from masala import (apply as a, lambd as _, )
+>>> from masala.datatype import Stream
+>>> [1, 2, 3] <<a>> Stream().select(_ * 2).to_list()
+[2, 4, 6]
+>>> Stream([1, 2, 3]).select(_ * 2).to_list().__call__()
+[2, 4, 6]
+>>> Stream().select(_ * 2).to_list() << [1, 2, 3]
+[2, 4, 6]
 
 ```
 

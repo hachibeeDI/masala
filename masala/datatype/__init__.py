@@ -3,4 +3,7 @@ from __future__ import (print_function, division, absolute_import, unicode_liter
 
 
 from .base import VariantType
-from .result import Either
+from .result import (Either, Right, Left, )
+from .stream import (
+    Stream,
+)

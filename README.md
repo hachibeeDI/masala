@@ -82,6 +82,15 @@ False
 >>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000).select(_ + 2).to_list().lookup_()
 Empty: < None > reason => <class 'masala.datatype.stream.NotIterableError'>
 
+>>> # you can extend the method by yourself
+>>> from masala.datatype.stream import dispatch_stream
+>>> @dispatch_stream
+... def my_select(xs, x_to_y):
+...     for x in xs:
+...         yield x_to_y(x)
+>>> Stream([1, 2, 3]).my_select(_ * 2).to_list().lookup_()
+[2, 4, 6]
+
 ```
 
 

@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 
-import operator
 from types import (
     TupleType,
     ListType,
@@ -148,52 +147,3 @@ class Match(object):
     @property
     def end(self):
         return self._match_result_holder
-
-
-if __name__ == '__main__':
-
-    match = Match(10)
-    @match.when(1)
-    def echo1():
-        return 'no'
-    @match.when(10)
-    def truepat():
-        return 'iei!'
-    assert match.end == 'iei!'
-
-
-    match = Match({'a': 1, 'b': 2})
-    @match.when([2, 2, 2], let_=('one', 'two', 'thr'))
-    def case1(one, two, thr):
-        print one, two, thr
-        return one
-    @match.when({'a': 1, 'b': _}, let_=('a'))
-    def case2(a):
-        print a
-        return a
-    assert match.end == ('a', 1)
-
-
-    match = Match('python')
-    @match.when(_.startwith('aa'), let_='moo')
-    def case1(moo):
-        print one, two, thr
-        return one
-    @match.when(_.startswith('pyt'), let_=('a'))
-    def case2(a):
-        print a
-        return a
-    assert match.end == 'python'
-
-
-    match = Match('python')
-    @match.when(_.isdigit(), let_='moo')
-    def case1(moo):
-        print one, two, thr
-        return one
-    @match.when(_ == 'python', let_=('a'))
-    def case2(a):
-        print a
-        return a
-    assert match.end == 'python'
-

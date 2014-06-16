@@ -63,13 +63,6 @@ def _opp_builder(op, doc):
 
 class LambdaBuilder(object):
     '''
-    >>> from result import Either
-    >>> Either.right('hachi') >> _.title()
-    u'Hachi'
-    >>> map(_ + 2, range(3))
-    [2, 3, 4]
-    >>> Either.right(print) >> _('hello world!')
-    hello world!
     '''
     __slots__ = ()
 
@@ -169,8 +162,3 @@ class MethodComposer(object):
     __ge__ = _composing_operation_builder(operator.ge, "self >= other")
     __eq__ = _composing_operation_builder(operator.eq, "self == other")
     __ne__ = _composing_operation_builder(operator.ne, "self != other")
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()

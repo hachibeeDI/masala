@@ -3,6 +3,7 @@ from __future__ import (print_function, division, absolute_import, unicode_liter
 
 import __builtin__
 
+import itertools
 from six import PY2
 if PY2:
     from itertools import (
@@ -10,7 +11,9 @@ if PY2:
         takewhile,
         islice,
         dropwhile,
-        izip as zip,
+        izip,
+        imap,
+        ifilter,
     )
 else:
     from itertools import (
@@ -19,6 +22,10 @@ else:
         islice,
         dropwhile,
     )
+    imap = map
+    ifilter = filter
+    izip = zip
+
 
 from .base import VariantType
 from ..utils import compose
@@ -53,13 +60,19 @@ class Stream(VariantType):
     def __lshift__(self, xs):
         return self.value(xs)
 
+    def __iter__(self):
+        return iter(self.value(self.xs))
+
     def lookup_(self, xs=None):
         if self.xs and xs:
             raise TypeError('Too many arguments')
 
-        if self.xs:
-            return self.value(self.xs)
-        return self.value(xs)
+        try:
+            if self.xs:
+                return self.value(self.xs)
+            return self.value(xs)
+        except TypeError as e:
+            return Empty(NotIterableError(e.message))
 
     def __call__(self, xs=None):
         return self.lookup_(xs)
@@ -106,16 +119,13 @@ def dispatch_stream(original_query):
     # TODO: should be methodtype?
     # TODO: should support MethodComposer?
     def _method_chaining_base(self, *args, **kw):
-        if isinstance(self, Empty):
-            return self
         return self.map(lambda xs: original_query(xs, *args, **kw))
     setattr(Stream, func_name, _method_chaining_base)
 
 
 @dispatch_stream
 def select(xs, y_from_x):
-    for x in xs:
-        yield y_from_x(x)
+    return imap(y_from_x, xs)
 
 
 @dispatch_stream
@@ -124,9 +134,7 @@ def where(xs, predicate):
     >>> range(10) | where(lambda x: x % 2 == 0) | to_tuple()
     (0, 2, 4, 6, 8)
     '''
-    for x in xs:
-        if predicate(x):
-            yield x
+    return ifilter(predicate, xs)
 
 
 @dispatch_stream
@@ -726,10 +734,7 @@ def to_list(xs):
     >>> Stream(True).to_list()
     Empty: < None > reason => <class 'masala.datatype.stream.NotIterableError'>
     '''
-    try:
-        return list(xs)
-    except TypeError as e:
-        return Empty(NotIterableError(e.message))
+    return list(xs)
 
 
 @dispatch_stream
@@ -818,7 +823,7 @@ def zip(xs, ys, xy_to_z=lambda xy: xy):
     >>> range(5) | zip('abcd') | to_tuple()
     ((0, 'a'), (1, 'b'), (2, 'c'), (3, 'd'))
     '''
-    return (xy_to_z(xy) for xy in zip(xs, ys))
+    return (xy_to_z(xy) for xy in izip(xs, ys))
 
 
 @dispatch_stream

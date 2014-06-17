@@ -67,6 +67,8 @@
 
 >>> from masala import (apply as a, lambd as _, )
 >>> from masala.datatype import Stream
+>>> # extends linq like methods to Stream. Ruby's enumeble is now planning... ...
+>>> from masala.datatype.stream import linq_ext
 >>> [1, 2, 3] <<a>> Stream().select(_ * 2).to_list()
 [2, 4, 6]
 >>> Stream([1, 2, 3]).select(_ * 2).to_list().__call__()
@@ -75,12 +77,12 @@
 [2, 4, 6]
 
 >>> Stream(range(0, 100)).select(_ * 2).where(_ > 1000).first().lookup_()
-Empty: < None > reason => <class 'masala.datatype.stream.NoContentStreamError'>
+Empty: < None > reason => <class 'masala.datatype.stream.error.NoContentStreamError'>
 
 >>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000).lookup_()
 False
 >>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000).select(_ + 2).to_list().lookup_()
-Empty: < None > reason => <class 'masala.datatype.stream.NotIterableError'>
+Empty: < None > reason => <class 'masala.datatype.stream.error.NotIterableError'>
 
 >>> # you can extend the method by yourself
 >>> from masala.datatype.stream import dispatch_stream

@@ -27,12 +27,14 @@ class Stream(VariantType):
         return self
 
     def __lshift__(self, xs):
-        return self.value(xs)
+        self.xs = self.value(xs)
+        self.value = lambda ys: ys
+        return self
 
     def __iter__(self):
         return iter(self.value(self.xs))
 
-    def lookup_(self, xs=None):
+    def evaluate(self, xs=None):
         if self.xs and xs:
             raise TypeError('Too many arguments')
 
@@ -42,9 +44,6 @@ class Stream(VariantType):
             return self.value(xs)
         except TypeError as e:
             return Empty(NotIterableError(e.message))
-
-    def __call__(self, xs=None):
-        return self.lookup_(xs)
 
 
 class Empty(Stream):
@@ -83,6 +82,11 @@ class Empty(Stream):
 
 
 def dispatch_stream(original_query):
+    '''
+    decorator to dispatch the function should be chaining method of masala.Stream
+
+    :type original_query: AnyObjects -> iter
+    '''
     func_name = original_query.func_name
 
     # TODO: should be methodtype?
@@ -90,3 +94,18 @@ def dispatch_stream(original_query):
     def _method_chaining_base(self, *args, **kw):
         return self.map(lambda xs: original_query(xs, *args, **kw))
     setattr(Stream, func_name, _method_chaining_base)
+
+
+def endpoint_of_stream(original_query):
+    '''
+    decorator to dispatch the function should be end of chaining method of masala.Stream
+
+    :type original_query: AnyObjects -> T
+    '''
+    func_name = original_query.func_name
+
+    # TODO: should be methodtype?
+    # TODO: should support MethodComposer?
+    def _evaluatable_method(self, *args, **kw):
+        return self.map(lambda xs: original_query(xs, *args, **kw)).evaluate()
+    setattr(Stream, func_name, _evaluatable_method)

@@ -55,11 +55,13 @@ else:
     imap = map
     ifilter = filter
     izip = zip
+    from functools import reduce
 
 
 from .stream import (
     Empty,
     dispatch_stream,
+    endpoint_of_stream,
 )
 from .error import (
     NoContentStreamError,
@@ -74,63 +76,31 @@ def select(xs, y_from_x):
 
 
 @dispatch_stream
+def select_with_index(xs, y_from_x_i):
+    return imap(y_from_x_i, enumerate(xs))
+
+
+@dispatch_stream
 def where(xs, predicate):
-    '''
-    >>> range(10) | where(lambda x: x % 2 == 0) | to_tuple()
-    (0, 2, 4, 6, 8)
-    '''
     return ifilter(predicate, xs)
 
 
 @dispatch_stream
-def aggregate(xs, seed, a_from_a_x, y_from_a=lambda a: a):
-    '''
-    >>> import string
-    >>> u = string.upper
-    >>> cat = lambda a, x: a + ':' + x
-    >>> ['a', 'b', 'c'] | aggregate('z', cat)
-    'z:a:b:c'
-    >>> ['a'] | aggregate('z', cat)
-    'z:a'
-    >>> [] | aggregate('z', cat)
-    'z'
-    >>> ['a', 'b', 'c'] | aggregate('z', cat, u)
-    'Z:A:B:C'
-    >>> ['a'] | aggregate('z', cat, u)
-    'Z:A'
-    >>> [] | aggregate('z', cat, u)
-    'Z'
-    '''
-    a = seed
-    for x in xs:
-        a = a_from_a_x(a, x)
-    return y_from_a(a)
+def where_with_index(xs, predicate_with_index):
+    return ifilter(predicate_with_index, enumerate(xs))
 
 
-@dispatch_stream
-def aggregate1(xs, a_from_a_x):
-    # TODO: Think about more proper name.
-    '''
-    >>> cat = lambda a, x: a + ':' + x
-    >>> ['a', 'b', 'c'] | aggregate1(cat)
-    'a:b:c'
-    >>> ['a'] | aggregate1(cat)
-    'a'
-    >>> [] | aggregate1(cat)
-    Traceback (most recent call last):
-      ...
-    ValueError: Sequence must contain some element
-    '''
-    xsd = (x for x in xs)
-    try:
-        a = xsd.next()
-    except StopIteration:
-        raise ValueError('Sequence must contain some element')
-
-    return xsd | aggregate(a, a_from_a_x)
+@endpoint_of_stream
+def aggregate(xs, a_from_a_x, result_selector=lambda a: a):
+    return result_selector(reduce(a_from_a_x, xs))
 
 
-@dispatch_stream
+@endpoint_of_stream
+def aggregate_with_seed(xs, seed, a_from_a_x, result_selector=lambda a: a):
+    return result_selector(reduce(a_from_a_x, xs, seed))
+
+
+@endpoint_of_stream
 def all(xs, predicate):
     '''
     >>> [1, 2, 3] | all(lambda x: isinstance(x, int))
@@ -148,12 +118,12 @@ def all(xs, predicate):
     return True
 
 
-@dispatch_stream
+@endpoint_of_stream
 def any(xs, predicate=lambda x: True):
     return __builtin__.any(x for x in xs if predicate(x))
 
 
-@dispatch_stream
+@endpoint_of_stream
 def average(xs, number_from_x=lambda x: x):
     '''
     >>> [1, 2, 3] | average()
@@ -304,7 +274,7 @@ def except_from(xs, xsd):
             yield x
 
 
-@dispatch_stream
+@endpoint_of_stream
 def first(xs, predicate=lambda x: True):
     for x in xs:
         if predicate(x):
@@ -312,7 +282,7 @@ def first(xs, predicate=lambda x: True):
     return Empty(NoContentStreamError())
 
 
-@dispatch_stream
+@endpoint_of_stream
 def first_or_default(xs, default_value, predicate=lambda x: True):
     for x in xs:
         if predicate(x):
@@ -445,16 +415,6 @@ def select_many_with_index(xs, ys_from_x_i):
     for i, x in enumerate(xs):
         for y in ys_from_x_i(x, i):
             yield y
-
-
-@dispatch_stream
-def select_with_index(xs, y_from_x_i):
-    '''
-    >>> [3, 2, 1] | select_with_index(lambda x, i: x * i) | to_tuple()
-    (0, 2, 2)
-    '''
-    for i, x in enumerate(xs):
-        yield y_from_x_i(x, i)
 
 # TODO: SequenceEqual
 
@@ -671,7 +631,7 @@ def to_dict(xs, key_from_x, value_from_x=lambda x: x):
     return d
 
 
-@dispatch_stream
+@endpoint_of_stream
 def to_list(xs):
     '''
     >>> Stream(xrange(10)).to_list()
@@ -724,7 +684,7 @@ def to_set(xs):
     return set(xs)
 
 
-@dispatch_stream
+@endpoint_of_stream
 def to_tuple(xs):
     '''
     >>> range(10) | to_tuple()
@@ -750,17 +710,6 @@ def union(xs, ys):
 
 
 @dispatch_stream
-def where_with_index(xs, predicate_with_index):
-    '''
-    >>> [1, 3, 5, 7] | where_with_index(lambda x, i: i % 2 == 0) | to_tuple()
-    (1, 5)
-    '''
-    for i, x in enumerate(xs):
-        if predicate_with_index(x, i):
-            yield x
-
-
-@dispatch_stream
 def zip(xs, ys, xy_to_z=lambda xy: xy):
     '''
     >>> [1, 2, 3] | zip('abcd', lambda xy: str(xy[0]) + ':' + xy[1]) | to_tuple()
@@ -771,7 +720,7 @@ def zip(xs, ys, xy_to_z=lambda xy: xy):
     return (xy_to_z(xy) for xy in izip(xs, ys))
 
 
-@dispatch_stream
+@endpoint_of_stream
 def foreach(xs, action):
     '''
     >>> def printfunc(x): print x

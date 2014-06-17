@@ -73,15 +73,27 @@ class TestMatch(unittest.TestCase):
         self.assertEqual(match.end, 'python')
 
 
+from masala.datatype import Stream
+from masala.datatype.stream import linq_ext
+
+
+class TestStream(unittest.TestCase):
+    def duplicate_endpoint(self):
+        with self.assertRaises(AttributeError):
+            Stream(range(0, 100)).select(_ * 2).any(_ > 1000).select(_ + 2).to_list()
+
 
 def load_tests(loader, tests, ignore):
     suite = unittest.TestSuite()
     # FIXME: まともに動かねえクソ
     # suite.addTests(doctest.DocFileSuite(path.join(CURRENT_DIR, 'README.md'), module_relative=False, ))
     suite.addTests(loader.loadTestsFromTestCase(TestMatch))
+    suite.addTests(loader.loadTestsFromTestCase(TestStream))
     return tests
 
 
 if __name__ == '__main__':
-    doctest.testfile('README.md')
-    unittest.main()
+    doctest.ELLIPSIS = True
+    doctest.NORMALIZE_WHITESPACE = True
+    doctest.testfile('README.md', optionflags=doctest.ELLIPSIS)
+    unittest.main(verbosity=2)

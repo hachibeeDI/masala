@@ -69,19 +69,18 @@
 >>> from masala.datatype import Stream
 >>> # extends linq like methods to Stream. Ruby's enumeble is now planning... ...
 >>> from masala.datatype.stream import linq_ext
->>> [1, 2, 3] <<a>> Stream().select(_ * 2).to_list()
+>>> Stream([1, 2, 3]).select(_ * 2).to_list()
 [2, 4, 6]
->>> Stream([1, 2, 3]).select(_ * 2).to_list().__call__()
-[2, 4, 6]
->>> Stream().select(_ * 2).to_list() << [1, 2, 3]
-[2, 4, 6]
+>>> # support lazy evaluation
+>>> Stream([1, 2, 3]).select(_ * 2)  # doctest:+ELLIPSIS
+Stream: < <function <lambda> at ...
 
->>> Stream(range(0, 100)).select(_ * 2).where(_ > 1000).first().lookup_()
+>>> Stream(range(0, 100)).select(_ * 2).where(_ > 1000).first()
 Empty: < None > reason => <class 'masala.datatype.stream.error.NoContentStreamError'>
 
->>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000).lookup_()
+>>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000)
 False
->>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000).select(_ + 2).to_list().lookup_()
+>>> Stream(111111).select(_ * 2).to_list()
 Empty: < None > reason => <class 'masala.datatype.stream.error.NotIterableError'>
 
 >>> # you can extend the method by yourself
@@ -90,7 +89,12 @@ Empty: < None > reason => <class 'masala.datatype.stream.error.NotIterableError'
 ... def my_select(xs, x_to_y):
 ...     for x in xs:
 ...         yield x_to_y(x)
->>> Stream([1, 2, 3]).my_select(_ * 2).to_list().lookup_()
+>>> Stream([1, 2, 3]).my_select(_ * 2).to_list()
+[2, 4, 6]
+
+>>> # other cases
+>>> stream_with_lshift = Stream().select(_ * 2) << [1, 2, 3]
+>>> stream_with_lshift.to_list()
 [2, 4, 6]
 
 ```

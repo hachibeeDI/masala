@@ -3,8 +3,7 @@ from __future__ import (print_function, division, absolute_import, unicode_liter
 
 from ..base import VariantType
 from ...utils import compose
-
-
+from ...shorthand import MethodComposer
 from .error import (
     NoContentStreamError,
     LessContentStreamError,
@@ -81,6 +80,13 @@ class Empty(Stream):
 #
 
 
+def _method_composer_to_callable(x):
+    if isinstance(x, MethodComposer):
+        return x.fin__()
+    return x
+
+
+
 def dispatch_stream(original_query):
     '''
     decorator to dispatch the function should be chaining method of masala.Stream
@@ -92,7 +98,13 @@ def dispatch_stream(original_query):
     # TODO: should be methodtype?
     # TODO: should support MethodComposer?
     def _method_chaining_base(self, *args, **kw):
-        return self.map(lambda xs: original_query(xs, *args, **kw))
+        return self.map(
+            lambda xs: original_query(
+                xs,
+                *[_method_composer_to_callable(a) for a in args],
+                **kw
+            )
+        )
     setattr(Stream, func_name, _method_chaining_base)
 
 

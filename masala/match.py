@@ -1,11 +1,5 @@
 # -*- coding:utf-8 -*-
 
-from types import (
-    TupleType,
-    ListType,
-    DictionaryType,
-)
-
 from six import (iteritems, add_metaclass, )
 
 from masala.shorthand import MethodComposer
@@ -16,6 +10,7 @@ class _Wildcard(object):
     ''' In a boolean context, this instance always return True.
         On the other hand it is work as ploxy of MethodComposer.
     '''
+
     def __nonzero__(self):
         return True
 
@@ -61,7 +56,7 @@ def _is_match_as_iterable(var, targ):
     '''
     list, tuple とマッチ. dict, generatorは無視
     '''
-    if not (isinstance(var, (TupleType, ListType, ), ) or isinstance(targ, (TupleType, ListType, ), )):
+    if not (isinstance(var, (tuple, list, ), ) or isinstance(targ, (tuple, list, ), )):
         return False
     # めんどいので単純な比較
     return tuple(var) == tuple(targ)
@@ -69,7 +64,7 @@ def _is_match_as_iterable(var, targ):
 
 def _is_match_as_dict(var, targ):
     ''' '''
-    if not (isinstance(var, DictionaryType) and isinstance(targ, DictionaryType)):
+    if not (isinstance(var, dict) and isinstance(targ, dict)):
         return False
     return var == targ
 

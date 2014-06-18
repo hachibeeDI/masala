@@ -9,28 +9,26 @@ from types import (
 from six import (iteritems, add_metaclass, )
 
 from masala.shorthand import MethodComposer
+from .shorthand import _append_operator_ploxy
 
 
-class _EqualedMimic(object):
-    ''' boolean評価ではTrueを返しつつ、MethodComposerへのプロキシとしても動く '''
-
-    def __init__(self, mimic):
-        self.mimic = mimic
-
+class _Wildcard(object):
+    ''' In a boolean context, this instance always return True.
+        On the other hand it is work as ploxy of MethodComposer.
+    '''
     def __nonzero__(self):
         return True
 
     def __getattr__(self, name):
-        return getattr(self.mimic, name)
-
-
-class _Wildcard(object):
-    def __eq__(self, other):
-        return MethodComposer() == other
-        return True
-
-    def __getattr__(self, name):
         return getattr(MethodComposer(), name)
+
+    __lt__ = _append_operator_ploxy('__lt__')
+    __le__ = _append_operator_ploxy('__le__')
+    __gt__ = _append_operator_ploxy('__gt__')
+    __ge__ = _append_operator_ploxy('__ge__')
+    __eq__ = _append_operator_ploxy('__eq__')
+    __ne__ = _append_operator_ploxy('__ne__')
+
 Wildcard = _Wildcard()
 
 

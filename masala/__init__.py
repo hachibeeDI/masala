@@ -4,8 +4,8 @@ from __future__ import (print_function, division, absolute_import, unicode_liter
 import types
 from inspect import getargspec
 
-from .shorthand import Builder
-lambd = Builder.l
+from .shorthand import BuilderAllowsMethodChaining, LambdaBuilder
+lambd = LambdaBuilder
 from .match import Match, Wildcard
 from .utils import (
     expr,

@@ -10,25 +10,57 @@ from .utils import (
 )
 
 
-class Builder(object):
+def _append_operator_ploxy(name):
+    def _operator(self, other):
+        m = MethodComposer()
+        return getattr(m, name)(other)
+    return _operator
+
+
+class BuilderAllowsMethodChaining(object):
+    ''' ploxy to construct MethodComposer
+    '''
 
     def __init__(self): pass
 
     def __getattr__(self, name):
-        if name in ('lambd', 'lam', 'l'):
-            return LambdaBuilder
-        elif name in ('method', 'met', 'm'):
-            return MethodComposer()
-        else:
-            raise AttributeError()
-Builder = Builder()
+        return getattr(MethodComposer(), name)
+
+    __add__ = _append_operator_ploxy('__add__')
+    __mul__ = _append_operator_ploxy('__mul__')
+    __sub__ = _append_operator_ploxy('__sub__')
+    __mod__ = _append_operator_ploxy('__mod__')
+    __pow__ = _append_operator_ploxy('__pow__')
+
+    __and__ = _append_operator_ploxy('__and__')
+    __or__ = _append_operator_ploxy('__or__')
+    __xor__ = _append_operator_ploxy('__xor__')
+
+    if version_info[0] == 2:
+        __div__ = _append_operator_ploxy('__div__')
+    else:
+        __div__ = _append_operator_ploxy('__div__')
+    __divmod__ = _append_operator_ploxy('__divmod__')
+    __floordiv__ = _append_operator_ploxy('__floordiv__')
+    __truediv__ = _append_operator_ploxy('__truediv__')
+
+    __lshift__ = _append_operator_ploxy('__lshift__')
+    __rshift__ = _append_operator_ploxy('__rshift__')
+
+    __lt__ = _append_operator_ploxy('__lt__')
+    __le__ = _append_operator_ploxy('__le__')
+    __gt__ = _append_operator_ploxy('__gt__')
+    __ge__ = _append_operator_ploxy('__ge__')
+    __eq__ = _append_operator_ploxy('__eq__')
+    __ne__ = _append_operator_ploxy('__ne__')
+BuilderAllowsMethodChaining = BuilderAllowsMethodChaining()
 
 
 def _does_arguments_has_placeholder(arg):
     '''
     ATTENTION: use Builders as placeholder
     '''
-    return isinstance(arg, (Builder.__class__, LambdaBuilder.__class__, MethodComposer, ))
+    return isinstance(arg, (BuilderAllowsMethodChaining.__class__, LambdaBuilder.__class__, MethodComposer, ))
 
 
 def _methodbuilder(name):
@@ -54,7 +86,7 @@ def _methodbuilder(name):
 
 def _opp_builder(op, doc):
     def _dummy_method(dummy_self, other):
-        if isinstance(other, (Builder.__class__, LambdaBuilder.__class__, MethodComposer, )):
+        if isinstance(other, (BuilderAllowsMethodChaining.__class__, LambdaBuilder.__class__, MethodComposer, )):
             return lambda trueself, trueother: op(trueself, trueother)
         else:
             return lambda trueself: op(trueself, other)

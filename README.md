@@ -1,6 +1,8 @@
 
 # Masala
 
+master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=master)](https://travis-ci.org/hachibeeDI/masala)
+
 ## ex
 
 ### curry

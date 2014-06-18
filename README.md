@@ -75,6 +75,9 @@
 >>> Stream([1, 2, 3]).select(_ * 2)  # doctest:+ELLIPSIS
 Stream: < <function <lambda> at ...
 
+>>> Stream(range(0, 15)).select(_ + 1).where(__ % 2 == 0).to_list()
+[2, 4, 6, 8, 10, 12, 14]
+
 >>> Stream(range(0, 100)).select(_ * 2).where(_ > 1000).first()
 Empty: < None > reason => <class 'masala.datatype.stream.error.NoContentStreamError'>
 

@@ -143,3 +143,25 @@ yieeeee
 >>> assert match.end == 'python'
 
 ```
+
+
+### call method with optional values
+
+```python
+
+>>> from masala import Perhaps
+
+>>> p = Perhaps('hoge huga foo')
+>>> p.try_('replace', 'huga', 'muoo').try_('upper').get()
+'HOGE MUOO FOO'
+>>> p.apply(len).get()
+13
+
+>>> nonecase = Perhaps(None).try_('replace', 'huga', 'muoo').try_('upper')
+>>> nonecase.get()
+
+>>> nonecase.get_or('nnnnn')
+'nnnnn'
+
+```
+

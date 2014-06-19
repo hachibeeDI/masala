@@ -6,6 +6,7 @@ from inspect import getargspec
 from .shorthand import BuilderAllowsMethodChaining, LambdaBuilder
 lambd = LambdaBuilder
 from .match import Match, Wildcard
+from .perhaps import Perhaps
 from .utils import (
     expr,
     flip,

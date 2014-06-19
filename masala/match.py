@@ -2,7 +2,7 @@
 
 from six import (iteritems, add_metaclass, )
 
-from masala.shorthand import MethodComposer
+from .shorthand import MethodComposer
 from .shorthand import _append_operator_ploxy
 
 
@@ -88,8 +88,9 @@ class MatchedAsIterable(MatchedResult):
 
 class MatchedAsDictionary(MatchedResult):
     def __call__(self, func):
-        kw = {k: v for k, v in zip(self.binder, iteritems(self.match_expr.value)) if not k == '_'}
-        self.match_expr._match_result_holder = func(**kw)
+        matched_values = self.match_expr.value
+        r = {k: matched_values[k] for k in self.binder if not k == '_'}
+        self.match_expr._match_result_holder = func(**r)
         del func
 
 

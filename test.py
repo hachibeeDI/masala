@@ -34,29 +34,35 @@ class TestMatch(unittest.TestCase):
 
     def test_dummy_block(self):
         match = Match(10)
+
         @match.when(1)
         def echo1():
             return 'no'
+
         @match.when(10)
         def truepat():
             return 'iei!'
         self.assertEqual(match.end, 'iei!')
 
-    def test_placeholder_with_list(self):
+    def test_placeholder_with_dict(self):
         match = Match({'a': 1, 'b': 2})
+
         @match.when([2, 2, 2], let_=('one', 'two', 'thr'))
         def case1(one, two, thr):
             return one
+
         @match.when({'a': 1, 'b': _}, let_=('a'))
         def case2(a):
             return a
-        self.assertEqual(match.end, ('a', 1))
+        self.assertEqual(match.end, 1)
 
     def test_placeholder_with_methodcalling(self):
         match = Match('python')
+
         @match.when(_.startwith('aa'), let_='moo')
         def case1(moo):
-            return one
+            return moo
+
         @match.when(_.startswith('pyt'), let_=('a'))
         def case2(a):
             return a
@@ -64,9 +70,11 @@ class TestMatch(unittest.TestCase):
 
     def test_placeholder_with_operator(self):
         match = Match('python')
+
         @match.when(_.isdigit(), let_='moo')
         def case1(moo):
-            return one
+            return moo
+
         @match.when(_ == 'python', let_=('a'))
         def case2(a):
             return a

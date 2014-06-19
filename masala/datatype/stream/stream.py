@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
+from six import get_function_code
+
 from ..base import VariantType
 from ...utils import compose
 from ...shorthand import MethodComposer
@@ -42,7 +44,7 @@ class Stream(VariantType):
                 return self.value(self.xs)
             return self.value(xs)
         except TypeError as e:
-            return Empty(NotIterableError(e.message))
+            return Empty(NotIterableError(str(e)))
 
 
 class Empty(Stream):
@@ -93,7 +95,7 @@ def dispatch_stream(original_query):
 
     :type original_query: AnyObjects -> iter
     '''
-    func_name = original_query.func_name
+    func_name = get_function_code(original_query).co_name
 
     # TODO: should be methodtype?
     # TODO: should support MethodComposer?
@@ -114,7 +116,7 @@ def endpoint_of_stream(original_query):
 
     :type original_query: AnyObjects -> T
     '''
-    func_name = original_query.func_name
+    func_name = get_function_code(original_query).co_name
 
     # TODO: should be methodtype?
     # TODO: should support MethodComposer?

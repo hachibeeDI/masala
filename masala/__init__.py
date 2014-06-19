@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
-import types
 from inspect import getargspec
 
 from .shorthand import BuilderAllowsMethodChaining, LambdaBuilder
@@ -38,7 +37,7 @@ class CurryContainer(object):
         self.argkw = []
 
     def __push_arg(self, arg):
-        if isinstance(arg, types.TupleType):
+        if isinstance(arg, tuple):
             self.argkw.append(arg)
         else:
             self.args.append(arg)

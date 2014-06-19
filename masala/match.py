@@ -10,8 +10,10 @@ class _Wildcard(object):
     ''' In a boolean context, this instance always return True.
         On the other hand it is work as ploxy of MethodComposer.
     '''
-
     def __nonzero__(self):
+        return True
+
+    def __bool__(self):
         return True
 
     def __getattr__(self, name):
@@ -109,7 +111,8 @@ class NonZeroCls(type):
 
         def new__nonzero__(cls):
             return False
-        cls.__class__.__nonzero__ = new__nonzero__
+        cls.__class__.__nonzero__ = new__nonzero__  # for PY2
+        cls.__class__.__bool__ = new__nonzero__  # for PY3
 
 
 @add_metaclass(NonZeroCls)

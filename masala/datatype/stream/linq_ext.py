@@ -32,7 +32,8 @@ License: So-called MIT/X license
 
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
-import __builtin__
+from six.moves import reduce
+import six.moves.builtins as __builtins__  # not __builtin__
 
 from six import PY2
 if PY2:
@@ -55,7 +56,6 @@ else:
     imap = map
     ifilter = filter
     izip = zip
-    from functools import reduce
 
 
 from .stream import (
@@ -120,7 +120,7 @@ def all(xs, predicate):
 
 @endpoint_of_stream
 def any(xs, predicate=lambda x: True):
-    return __builtin__.any(x for x in xs if predicate(x))
+    return __builtins__.any(x for x in xs if predicate(x))
 
 
 @endpoint_of_stream
@@ -525,7 +525,7 @@ def sum(xs, y_from_x=lambda x: x):
     >>> range(10) | sum(lambda x: -x)
     -45
     '''
-    return __builtin__.sum(y_from_x(x) for x in xs)
+    return __builtins__.sum(y_from_x(x) for x in xs)
 
 
 @dispatch_stream

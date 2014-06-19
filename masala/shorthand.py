@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
+from six import PY2
+from six.moves import reduce
+
 import operator
 from itertools import chain
-from sys import version_info
 
 from .utils import (
     compose,
@@ -36,7 +38,7 @@ class BuilderAllowsMethodChaining(object):
     __or__ = _append_operator_ploxy('__or__')
     __xor__ = _append_operator_ploxy('__xor__')
 
-    if version_info[0] == 2:
+    if PY2:
         __div__ = _append_operator_ploxy('__div__')
     else:
         __div__ = _append_operator_ploxy('__div__')
@@ -116,7 +118,7 @@ class LambdaBuilder(object):
     __or__ = _opp_builder(operator.or_, "self | other")
     __xor__ = _opp_builder(operator.xor, "self ^ other")
 
-    if version_info[0] == 2:
+    if PY2:
         __div__ = _opp_builder(operator.div, "self / other")
     else:
         __div__ = _opp_builder(operator.truediv, "self / other")
@@ -177,7 +179,7 @@ class MethodComposer(object):
     __or__ = _composing_operation_builder(operator.or_, "self | other")
     __xor__ = _composing_operation_builder(operator.xor, "self ^ other")
 
-    if version_info[0] == 2:
+    if PY2:
         __div__ = _composing_operation_builder(operator.div, "self / other")
     else:
         __div__ = _composing_operation_builder(operator.truediv, "self / other")

@@ -16,7 +16,7 @@ class TestLambdaBuilder(unittest.TestCase):
     def test_basic(self):
         from masala.datatype import Either
         self.assertEqual(Either.right('hachi') >> lambd.title(), u'Hachi')
-        self.assertEqual(map(lambd + 2, range(3)), [2, 3, 4])
+        self.assertEqual(list(map(lambd + 2, range(3))), [2, 3, 4])
 
 
 from masala import Match

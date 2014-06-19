@@ -8,7 +8,7 @@ class VariantType(object):
         self.value = v
 
     def __repr__(self):
-        return '{0}: < {1} >'.format(self.__class__.__name__, unicode(self.value))
+        return '{0}: < {1} >'.format(self.__class__.__name__, repr(self.value))
 
     def bind(self, a_to_m_b):
         raise NotImplementedError

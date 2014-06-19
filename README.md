@@ -9,6 +9,7 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 
 ```python
 
+>>> from __future__ import (print_function, division, absolute_import, unicode_literals, )
 >>> from masala import CurryContainer as cc
 >>> cur = cc(lambda a, b, c: [a, b, c])
 >>> _ = cur << 'aaa' << 'bbb'
@@ -42,8 +43,9 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 >>> replacer = _.replace(_, _)
 >>> replacer('hachi', 'chi', 'chiboee')
 'hachiboee'
->>> map(_ + 2, range(3))
+>>> list(map(_ + 2, range(3)))
 [2, 3, 4]
+>>> from six.moves import reduce
 >>> reduce(_ + _, range(5))
 10
 
@@ -75,7 +77,7 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 [2, 4, 6]
 >>> # support lazy evaluation
 >>> Stream([1, 2, 3]).select(_ * 2)  # doctest:+ELLIPSIS
-Stream: < <function <lambda> at ...
+Stream: < <function ...
 
 >>> Stream(range(0, 15)).select(_ + 1).where(__ % 2 == 0).to_list()
 [2, 4, 6, 8, 10, 12, 14]
@@ -114,9 +116,9 @@ Empty: < None > reason => <class 'masala.datatype.stream.error.NotIterableError'
 
 >>> match = Match(10)
 >>> if match.when(1):
-...    print 'boo'
+...    print('boo')
 ... elif match.when(10):
-...    print 'yieeeee'
+...    print('yieeeee')
 yieeeee
 
 
@@ -125,19 +127,15 @@ yieeeee
 >>> match = Match([1, 2, 3])
 >>> @match.when([2, 2, 2], let_=('one', 'two', 'thr'))
 ... def case1(one, two, thr):
-...     print one, two, thr
-...     return one
+...     return 'case1'
 >>> @match.when([_, 2, 3], let_=('one', '_', 'thr'))
 ... def case2(one, thr):
-...    print 'one: {0} two: {1} thr: {2}'.format(one, '_', thr)
-...    return one
-one: 1 two: _ thr: 3
->>> assert match.end == 1
+...    return 'case2'
+>>> assert match.end == 'case2'
 
 >>> match = Match('python')
 >>> @match.when(_.isdigit(), let_='moo')
 ... def case1(moo):
-...     print one, two, thr
 ...     return one
 >>> @match.when(_ == 'python', let_=('a'))
 ... def case2(a):

@@ -5,7 +5,7 @@ from six import get_function_code
 
 from ..base import VariantType
 from ...utils import compose
-from ...shorthand import MethodComposer
+from ...shorthand import MethodComposer, BuilderAllowsMethodChaining
 from .error import (
     NoContentStreamError,
     LessContentStreamError,
@@ -64,7 +64,7 @@ class Empty(Stream):
         return self
 
     def __repr__(self):
-        return super(Stream, self).__repr__() + " reason => " + str(type(self.error))
+        return super(Stream, self).__repr__() + " reason => " + str(type(self.error)) + ": " + str(self.error)
 
 
 # class OrderedStream(Stream):
@@ -98,7 +98,6 @@ def dispatch_stream(original_query):
     func_name = get_function_code(original_query).co_name
 
     # TODO: should be methodtype?
-    # TODO: should support MethodComposer?
     def _method_chaining_base(self, *args, **kw):
         return self.map(
             lambda xs: original_query(
@@ -108,6 +107,11 @@ def dispatch_stream(original_query):
             )
         )
     setattr(Stream, func_name, _method_chaining_base)
+
+
+def delete_dispatchedmethods(names):
+    for name in names:
+        delattr(Stream, name)
 
 
 def endpoint_of_stream(original_query):

@@ -82,13 +82,47 @@ class TestMatch(unittest.TestCase):
 
 
 from masala.datatype import Stream
-from masala.datatype.stream import linq_ext
+from masala.datatype.stream import delete_dispatchedmethods
+from masala import lambd as _l_
+from masala import BuilderAllowsMethodChaining as __
 
 
-class TestStream(unittest.TestCase):
-    def duplicate_endpoint(self):
+class TestStreamWithLinq(unittest.TestCase):
+    def setUp(self):
+        from masala.datatype.stream import linq_ext
+        self.linq_module_names = linq_ext.__all__
+
+    def test_duplicate_endpoint(self):
         with self.assertRaises(AttributeError):
-            Stream(range(0, 100)).select(_ * 2).any(_ > 1000).select(_ + 2).to_list()
+            Stream(range(0, 100)).select(_l_ * 2).any(_l_ > 1000).select(_l_ + 2).to_list()
+
+    def test_method_deleted(self):
+        with self.assertRaises(AttributeError):
+            delete_dispatchedmethods(self.linq_module_names)
+            Stream(range(0, 100)).select(_l_ * 2).any(_l_ > 1000).select(_l_ + 2).to_list()
+
+
+class TestStreamWithIterTools(unittest.TestCase):
+
+    def setUp(self):
+        from masala.datatype.stream import itertools_ext
+
+    def test_map(self):
+        self.assertListEqual(
+            Stream(range(5)).map_(__ * 2).to_list(),
+            [0, 2, 4, 6, 8]
+        )
+
+    def test_filter(self):
+        self.assertListEqual(
+            Stream(range(10)).filter(__ % 2 == 0).to_list(),
+            [0, 2, 4, 6, 8]
+        )
+
+    def test_duplicate_endpoint(self):
+        self.assertTrue(
+            Stream(range(0, 100)).map_(_l_ * 2).any(_l_ < 0) is False
+        )
 
 
 def load_tests(loader, tests, ignore):
@@ -96,7 +130,8 @@ def load_tests(loader, tests, ignore):
     # FIXME: まともに動かねえクソ
     # suite.addTests(doctest.DocFileSuite(path.join(CURRENT_DIR, 'README.md'), module_relative=False, ))
     suite.addTests(loader.loadTestsFromTestCase(TestMatch))
-    suite.addTests(loader.loadTestsFromTestCase(TestStream))
+    suite.addTests(loader.loadTestsFromTestCase(TestStreamWithLinq))
+    suite.addTests(loader.loadTestsFromTestCase(TestStreamWithIterTools))
     return tests
 
 

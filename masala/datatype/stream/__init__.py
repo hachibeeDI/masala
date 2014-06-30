@@ -4,6 +4,7 @@ from .stream import (
     Stream,
     Empty,
     dispatch_stream,
+    delete_dispatchedmethods,
 )
 from .error import (
     NoContentStreamError,

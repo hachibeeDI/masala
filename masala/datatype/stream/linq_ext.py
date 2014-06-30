@@ -32,6 +32,56 @@ License: So-called MIT/X license
 
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
+__all__ = (
+    'select',
+    'select_with_index',
+    'where',
+    'where_with_index',
+    'aggregate',
+    'aggregate_with_seed',
+    'all',
+    'any',
+    'average',
+    'concat',
+    'contains',
+    'count',
+    'default_if_empty',
+    'distinct',
+    'element_at',
+    'element_at_or_default',
+    'except_from',
+    'first',
+    'first_or_default',
+    'last',
+    'last_or_default',
+    'max',
+    'min',
+    'repeat',
+    'reverse',
+    'select_many',
+    'select_many_with_index',
+    'single',
+    'single_or_default',
+    'skip',
+    'skip_while',
+    'skip_while_with_index',
+    'sum',
+    'take',
+    'take_while',
+    'take_while_with_index',
+    'to_dict',
+    'to_list',
+    'to_lookup',
+    'to_set',
+    'to_tuple',
+    'union',
+    'zip',
+    'foreach',
+    'foreach_with_index',
+)
+
+
+
 from six.moves import reduce
 import six.moves.builtins as __builtins__  # not __builtin__
 
@@ -242,16 +292,6 @@ def element_at_or_default(xs, index, default_value):
         if i == index:
             return x
     return default_value
-
-
-def empty():
-    '''
-    >>> empty() | any()
-    False
-    >>> empty() | count()
-    0
-    '''
-    return ()
 
 
 @dispatch_stream

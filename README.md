@@ -82,13 +82,13 @@ Stream: < <function ...
 >>> Stream(range(0, 15)).select(_ + 1).where(__ % 2 == 0).to_list()
 [2, 4, 6, 8, 10, 12, 14]
 
->>> Stream(range(0, 100)).select(_ * 2).where(_ > 1000).first()
-Empty: < None > reason => <class 'masala.datatype.stream.error.NoContentStreamError'>
+>>> Stream(range(0, 100)).select(_ * 2).where(_ > 1000).first()  # doctest:+ELLIPSIS
+Empty: < None > reason => <class 'masala.datatype.stream.error.NoContentStreamError'>:
 
 >>> Stream(range(0, 100)).select(_ * 2).any(_ > 1000)
 False
 >>> Stream(111111).select(_ * 2).to_list()
-Empty: < None > reason => <class 'masala.datatype.stream.error.NotIterableError'>
+Empty: < None > reason => <class 'masala.datatype.stream.error.NotIterableError'>: 'int' object is not iterable
 
 >>> # you can extend the method by yourself
 >>> from masala.datatype.stream import dispatch_stream

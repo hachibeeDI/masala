@@ -60,8 +60,8 @@ class Empty(Stream):
     def __lshift__(self, xs):
         return self
 
-    def __call__(self, xs=None):
-        return self
+    def evaluate(self, xs=None):
+        return []
 
     def __repr__(self):
         return super(Stream, self).__repr__() + " reason => " + str(type(self.error)) + ": " + str(self.error)

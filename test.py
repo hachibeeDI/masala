@@ -92,9 +92,19 @@ class TestStreamWithLinq(unittest.TestCase):
         from masala.datatype.stream import linq_ext
         self.linq_module_names = linq_ext.__all__
 
+    def test_iteration_endpoint(self):
+        self.assertListEqual(
+            Stream(range(0, 100)).select(__ * 2).to_list(),
+            list(map(lambda x: x * 2, range(0, 100))),
+        )
+        self.assertListEqual(
+            Stream(range(0, 100)).select(__ * 2).where(__ % 3 == 0).to_list(),
+            list(filter(lambda y: y % 3 == 0, map(lambda x: x * 2, range(0, 100)))),
+        )
+
     def test_duplicate_endpoint(self):
         with self.assertRaises(AttributeError):
-            Stream(range(0, 100)).select(_l_ * 2).any(_l_ > 1000).select(_l_ + 2).to_list()
+            Stream(range(0, 100)).select(__ * 2).any(__ > 1000).to_list(),
 
     def test_method_deleted(self):
         with self.assertRaises(AttributeError):
@@ -121,7 +131,7 @@ class TestStreamWithIterTools(unittest.TestCase):
 
     def test_duplicate_endpoint(self):
         self.assertTrue(
-            Stream(range(0, 100)).map_(_l_ * 2).any(_l_ < 0) is False
+            Stream(range(0, 100)).map_(__ * 2).any(__ < 0) is False
         )
 
 

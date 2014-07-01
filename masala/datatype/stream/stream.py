@@ -123,7 +123,11 @@ def endpoint_of_stream(original_query):
     func_name = get_function_code(original_query).co_name
 
     # TODO: should be methodtype?
-    # TODO: should support MethodComposer?
     def _evaluatable_method(self, *args, **kw):
-        return self.map(lambda xs: original_query(xs, *args, **kw)).evaluate()
+        return self.map(
+            lambda xs: original_query(
+                xs,
+                *[_method_composer_to_callable(a) for a in args],
+                **kw)
+        ).evaluate()
     setattr(Stream, func_name, _evaluatable_method)

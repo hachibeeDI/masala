@@ -5,7 +5,6 @@ from six import get_function_code
 
 from ..base import VariantType
 from ...utils import compose
-from ...shorthand import MethodComposer, BuilderAllowsMethodChaining
 from .error import (
     NoContentStreamError,
     LessContentStreamError,
@@ -82,13 +81,6 @@ class Empty(Stream):
 #
 
 
-def _method_composer_to_callable(x):
-    if isinstance(x, MethodComposer):
-        return x.fin__()
-    return x
-
-
-
 def dispatch_stream(original_query):
     '''
     decorator to dispatch the function should be chaining method of masala.Stream
@@ -102,7 +94,7 @@ def dispatch_stream(original_query):
         return self.map(
             lambda xs: original_query(
                 xs,
-                *[_method_composer_to_callable(a) for a in args],
+                *args,
                 **kw
             )
         )
@@ -127,7 +119,7 @@ def endpoint_of_stream(original_query):
         return self.map(
             lambda xs: original_query(
                 xs,
-                *[_method_composer_to_callable(a) for a in args],
+                *args,
                 **kw)
         ).evaluate()
     setattr(Stream, func_name, _evaluatable_method)

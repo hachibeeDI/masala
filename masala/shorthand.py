@@ -165,6 +165,13 @@ class MethodComposer(object):
         methods = [x(*y[0], **y[1]) for x, y in zip(self.chains, self.args)]
         return reduce(compose, methods)
 
+    def __call__(self, *args, **kw):
+        ''' to use same as lambda.
+            but this is not became callable
+        '''
+        func = self.fin__()
+        return func(*args, **kw)
+
     def apply__(self, var):
         return self.fin__()(var)
 

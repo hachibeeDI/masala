@@ -17,7 +17,7 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 ['aaa', 'bbb', 'ccc']
 
 >>> cur = cc(lambda a, b='hogeeee', c='foooo': [a, b, c])
->>> _ = cur << 'a' << ('c', 'c')
+>>> cur = cur << 'a' << ('c', 'c')
 >>> cur('b')
 ['a', 'b', 'c']
 
@@ -56,10 +56,16 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 ```python
 
 >>> from masala import BuilderAllowsMethodChaining as __
->>> Either.right('hachi') >> __.title().replace('i', 'U').replace('c', 'z').fin__()
+>>> Either.right('hachi') >> __.title().replace('i', 'U').replace('c', 'z')
 'HazhU'
->>> Either.right(4) >> ((__ + 4) * 'py'.title()).fin__()
+>>> foolambda = __.title().replace('i', 'U').replace('c', 'z')
+>>> foolambda('hachi')
+'HazhU'
+
+>>> Either.right(4) >> ((__ + 4) * 'py'.title())
 'PyPyPyPyPyPyPyPy'
+>>> (__ + 1 + 2 + 3 + 4 + 5)(0)
+15
 >>> (__ + 1 + 2 + 3 + 4 + 5).apply__(0)
 15
 

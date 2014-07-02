@@ -8,6 +8,40 @@ import doctest
 import unittest
 
 
+
+from masala import CurryContainer as cc
+from masala import curried
+
+
+
+class TestCurryContainer(unittest.TestCase):
+    def test_basic(self):
+        cur = cc(lambda a, b, c: [a, b, c])
+        cur = cur << 'aaa' << 'bbb'
+        self.assertEqual(cur('ccc'), ['aaa', 'bbb', 'ccc'])
+
+    def test_named_args(self):
+        cur = cc(lambda a, b='hogeeee', c='foooo': [a, b, c])
+        cur = cur << 'a' << ('c', 'c')
+        self.assertEqual(cur(b='boee'), ['a', 'boee', 'c'])
+
+    def test_decotator(self):
+
+        @curried
+        def sum5(a, b, c, d, e):
+            return a + b + c + d + e
+        sum0 = sum5 << 1 << 2 << 3 << 4 << 5
+        self.assertEqual(sum0(), sum5(1, 2, 3, 4, 5))
+
+    def test_overargs(self):
+        @curried
+        def emp(a):
+            return a
+        with self.assertRaises(TypeError):
+            a_emp = emp << 'a'
+            a_emp(1, 2, 3)
+
+
 from masala import lambd
 
 
@@ -129,20 +163,20 @@ class TestStreamWithIterTools(unittest.TestCase):
             [0, 2, 4, 6, 8]
         )
 
-    def test_duplicate_endpoint(self):
+    def test_endpoint(self):
         self.assertTrue(
             Stream(range(0, 100)).map_(__ * 2).any(__ < 0) is False
         )
 
 
-def load_tests(loader, tests, ignore):
-    suite = unittest.TestSuite()
-    # FIXME: まともに動かねえクソ
-    # suite.addTests(doctest.DocFileSuite(path.join(CURRENT_DIR, 'README.md'), module_relative=False, ))
-    suite.addTests(loader.loadTestsFromTestCase(TestMatch))
-    suite.addTests(loader.loadTestsFromTestCase(TestStreamWithLinq))
-    suite.addTests(loader.loadTestsFromTestCase(TestStreamWithIterTools))
-    return tests
+# def load_tests(loader, tests, ignore):
+#     suite = unittest.TestSuite()
+#     # # FIXME: まともに動かねえクソ
+#     # suite.addTests(doctest.DocFileSuite(path.join(CURRENT_DIR, 'README.md'), module_relative=False, ))
+#     suite.addTests(loader.loadTestsFromTestCase(TestMatch))
+#     suite.addTests(loader.loadTestsFromTestCase(TestStreamWithLinq))
+#     suite.addTests(loader.loadTestsFromTestCase(TestStreamWithIterTools))
+#     return tests
 
 
 if __name__ == '__main__':

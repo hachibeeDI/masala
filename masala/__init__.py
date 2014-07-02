@@ -29,7 +29,7 @@ class CurryContainer(object):
     [u'a', u'b', u'c']
     '''
 
-    __slots__ = ('func', 'maxarglen', 'args', 'argkw', )
+    __slots__ = ('func', )
 
     def __init__(self, func):
         self.func = func
@@ -44,6 +44,8 @@ class CurryContainer(object):
 
 
 class CurriedContent(object):
+    __slots__ = ('func', 'args', 'argkw', )
+
     def __init__(self, func):
         self.func = func
         self.args = []
@@ -64,7 +66,7 @@ class CurriedContent(object):
         maxarglen = len(getargspec(self.func).args)
         if maxarglen < argslen:
             raise TypeError('{0} takes at most {1} argument ({2} given)'.format(
-                self.func.__name__, self.maxarglen, argslen))
+                self.func.__name__, maxarglen, argslen))
 
         args_for_deliver = self.args
         if args:

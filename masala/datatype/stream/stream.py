@@ -28,8 +28,7 @@ class Stream(VariantType):
 
     def __lshift__(self, xs):
         self.xs = self.value(xs)
-        self.value = lambda ys: ys
-        return self
+        return self.value(xs)
 
     def __iter__(self):
         return iter(self.value(self.xs))

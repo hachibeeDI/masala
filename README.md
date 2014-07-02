@@ -77,7 +77,8 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 
 >>> from masala import (apply as a, lambd as _, )
 >>> from masala.datatype import Stream
->>> # extends linq like methods to Stream. Ruby's enumeble is now planning... ...
+>>> # extends linq like methods to Stream.
+>>> # but I reccomend to use itertools extention is also prepared as `from masala.datatype.stream import itertools_ext`
 >>> from masala.datatype.stream import linq_ext
 >>> Stream([1, 2, 3]).select(_ * 2).to_list()
 [2, 4, 6]
@@ -104,11 +105,20 @@ Empty: < None > reason => <class 'masala.datatype.stream.error.NotIterableError'
 ...         yield x_to_y(x)
 >>> Stream([1, 2, 3]).my_select(_ * 2).to_list()
 [2, 4, 6]
+>>> from masala.datatype.stream import delete_dispatchedmethods
+>>> # you can clean extentions.
+>>> delete_dispatchedmethods(['my_select'])
 
 >>> # other cases
->>> stream_with_lshift = Stream().select(_ * 2) << [1, 2, 3]
->>> stream_with_lshift.to_list()
+>>> twicer = Stream().select(_ * 2)
+>>> twiced = twicer << [1, 2, 3]
+>>> list(twiced)
 [2, 4, 6]
+>>> twiced2 = twicer << [2, 3, 4]
+>>> list(twiced2)
+[4, 6, 8]
+
+>>> delete_dispatchedmethods(linq_ext.__all__)
 
 ```
 

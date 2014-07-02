@@ -171,3 +171,10 @@ yieeeee
 
 ```
 
+
+## Support
+
+tested version of Python is
+
+- 2.7
+- 3.4

@@ -33,31 +33,46 @@ class CurryContainer(object):
 
     def __init__(self, func):
         self.func = func
-        self.maxarglen = len(getargspec(func).args)
+
+    def __lshift__(self, arg):
+        content = CurriedContent(self.func)
+        content._push_arg(arg)
+        return content
+
+    def __call__(self, *args, **kw):
+        return self.func(*args, **kw)
+
+
+class CurriedContent(object):
+    def __init__(self, func):
+        self.func = func
         self.args = []
         self.argkw = []
 
-    def __push_arg(self, arg):
+    def _push_arg(self, arg):
         if isinstance(arg, tuple):
             self.argkw.append(arg)
         else:
             self.args.append(arg)
 
     def __lshift__(self, arg):
-        self.__push_arg(arg)
+        self._push_arg(arg)
         return self
 
-    def __call__(self, arg=None):
-        argslen = len(self.args + self.argkw) + bool(arg is not None)
-        if self.maxarglen < argslen:
+    def __call__(self, *args, **kw):
+        argslen = len(self.args + self.argkw) + len(args) + len(kw)
+        maxarglen = len(getargspec(self.func).args)
+        if maxarglen < argslen:
             raise TypeError('{0} takes at most {1} argument ({2} given)'.format(
                 self.func.__name__, self.maxarglen, argslen))
-        if arg:
-            self.__push_arg(arg)
-        return self.func(*self.args, **dict(self.argkw))
 
-    def call(self, arg=None):
-        return self.__call__(arg)
+        args_for_deliver = self.args
+        if args:
+            args_for_deliver.extend(args)
+        kw_for_deliver = dict(self.argkw)
+        if kw:
+            kw_for_deliver.update(kw)
+        return self.func(*args_for_deliver, **kw_for_deliver)
 
 
 curried = CurryContainer

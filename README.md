@@ -12,9 +12,10 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 >>> from __future__ import (print_function, division, absolute_import, unicode_literals, )
 >>> from masala import CurryContainer as cc
 >>> cur = cc(lambda a, b, c: [a, b, c])
->>> _ = cur << 'aaa' << 'bbb'
+>>> cur = cur << 'aaa' << 'bbb'
 >>> cur('ccc')
 ['aaa', 'bbb', 'ccc']
+
 >>> cur = cc(lambda a, b='hogeeee', c='foooo': [a, b, c])
 >>> _ = cur << 'a' << ('c', 'c')
 >>> cur('b')
@@ -26,8 +27,7 @@ master: [![Build Status](https://travis-ci.org/hachibeeDI/masala.svg?branch=mast
 ...     return a + b + c + d + e
 ...
 >>> sum0 = sum5 << 1 << 2 << 3 << 4 << 5
->>> sum0.call()  # same as sum0()
-15
+>>> assert sum0() == sum5(1, 2, 3, 4, 5)
 
 ```
 

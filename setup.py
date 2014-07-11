@@ -1,22 +1,29 @@
 # -*- coding: utf-8 -*-
 
 
-import setuptools
+from setuptools import (
+    setup,
+    find_packages,
+)
 
 VERSION = '0.0.1'
 
 
-setuptools.setup(
+with open('README.md') as f:
+    LONG_DESCRIPTION = f.read()
+
+
+setup(
     name='masala',
     version=VERSION,
-    packages=['masala'],
+    packages=find_packages(),
     install_requires=['six'],
     author='OGURA_Daiki',
     author_email='8hachibee125@gmail.com',
     license='MIT',
     url='https://github.com/hachibeeDI/masala',
     description='curry functional patternpatch linq',
-    long_description='',
+    long_description=LONG_DESCRIPTION,
     classifiers='''
 Programming Language :: Python
 Development Status :: 2 - Pre-Alpha

@@ -6,7 +6,7 @@ CURRENT_DIR = path.dirname(path.abspath(__file__))
 
 import doctest
 import unittest
-
+from imp import reload
 
 
 from masala import CurryContainer as cc
@@ -116,6 +116,7 @@ class TestMatch(unittest.TestCase):
 
 
 from masala.datatype import Stream
+from masala.datatype.stream import linq_ext
 from masala.datatype.stream import delete_dispatchedmethods
 from masala import lambd as _l_
 from masala import BuilderAllowsMethodChaining as __
@@ -123,8 +124,7 @@ from masala import BuilderAllowsMethodChaining as __
 
 class TestStreamWithLinq(unittest.TestCase):
     def setUp(self):
-        from masala.datatype.stream import linq_ext
-        self.linq_module_names = linq_ext.__all__
+        reload(linq_ext)
 
     def test_iteration_endpoint(self):
         self.assertListEqual(
@@ -141,9 +141,11 @@ class TestStreamWithLinq(unittest.TestCase):
             Stream(range(0, 100)).select(__ * 2).any(__ > 1000).to_list(),
 
     def test_method_deleted(self):
+        Stream(range(0, 100)).select(_l_ * 2).any(_l_ > 1000)
         with self.assertRaises(AttributeError):
             delete_dispatchedmethods(self.linq_module_names)
-            Stream(range(0, 100)).select(_l_ * 2).any(_l_ > 1000).select(_l_ + 2).to_list()
+            Stream(range(0, 100)).select(_l_ * 2).any(_l_ > 1000)
+        reload(linq_ext)
 
 
 class TestStreamWithIterTools(unittest.TestCase):

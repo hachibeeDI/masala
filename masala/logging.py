@@ -10,8 +10,15 @@ from logging import (
 )
 
 MasalaHandler = StreamHandler()
-MasalaHandler.setFormatter(Formatter("%(levelname)s: [in %(funcName)s] '%(message)s'"))
+MasalaHandler.setFormatter(Formatter("%(levelname)s: [in %(name)s : %(funcName)s] '%(message)s'"))
 MasalaHandler.setLevel(INFO)
+
+
+def get_root_logger(level=DEBUG):
+    logger = getLogger('masala')
+    logger.addHandler(MasalaHandler)
+    logger.setLevel(level)
+    return logger
 
 
 def get_logger(name, level=DEBUG):
@@ -22,9 +29,12 @@ def get_logger(name, level=DEBUG):
     '''
     logger = getLogger(name)
     logger.setLevel(level)
-    logger.addHandler(MasalaHandler)
     return logger
 
 
+def set_debug_level(level):
+    MasalaHandler.setLevel(level)
+
+
 def as_debug_mode():
-    MasalaHandler.setLevel(DEBUG)
+    set_debug_level(DEBUG)

@@ -2,9 +2,9 @@
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
 from masala.logging import (
-    get_logger,
+    get_root_logger,
 )
-_logger = get_logger(__name__)
+_logger = get_root_logger()
 
 
 from inspect import getargspec

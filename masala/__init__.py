@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
+from masala.logging import (
+    get_logger,
+)
+_logger = get_logger(__name__)
+
+
 from inspect import getargspec
 
 from .shorthand import BuilderAllowsMethodChaining, LambdaBuilder

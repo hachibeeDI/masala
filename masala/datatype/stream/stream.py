@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import (print_function, division, absolute_import, unicode_literals, )
 
+
+from masala.logging import (
+    get_logger,
+)
+logger = get_logger(__name__)
+
+
 from six import get_function_code
 
 from ..base import VariantType
@@ -87,6 +94,7 @@ def dispatch_stream(original_query):
     :type original_query: AnyObjects -> iter
     '''
     func_name = get_function_code(original_query).co_name
+    logger.debug('dispatching ' + func_name)
 
     # TODO: should be methodtype?
     def _method_chaining_base(self, *args, **kw):

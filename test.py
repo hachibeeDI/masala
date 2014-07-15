@@ -8,6 +8,7 @@ import doctest
 import unittest
 from imp import reload
 
+from masala.datatype import Either
 
 from masala import CurryContainer as cc
 from masala import curried
@@ -48,7 +49,6 @@ from masala import lambd
 class TestLambdaBuilder(unittest.TestCase):
 
     def test_basic(self):
-        from masala.datatype import Either
         self.assertEqual(Either.right('hachi') >> lambd.title(), u'Hachi')
         self.assertEqual(list(map(lambd + 2, range(3))), [2, 3, 4])
 
@@ -113,6 +113,39 @@ class TestMatch(unittest.TestCase):
         def case2(a):
             return a
         self.assertEqual(match.end, 'python')
+
+
+from masala.datatype import Right, Left
+
+
+class TestMatchWithDatatype(unittest.TestCase):
+
+    def test_with_right(self):
+        match = Match(Either.right('python'))
+
+        @match.when(Right)
+        def case_right(v):
+            return v + ' is right!'
+
+        @match.when(Left)
+        def case_left(v):
+            self.fail('case_left should not called')
+
+        self.assertEqual(match.end, 'python is right!')
+
+
+    def test_with_left(self):
+        match = Match(Either.left('not python'))
+
+        @match.when(Right)
+        def case_right(v):
+            self.fail('case_right should not called')
+
+        @match.when(Left)
+        def case_left(v):
+            return 'left because ' + v
+
+        self.assertEqual(match.end, 'left because not python')
 
 
 from masala.datatype import Stream

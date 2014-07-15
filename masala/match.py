@@ -1,15 +1,23 @@
 # -*- coding:utf-8 -*-
 
+
+'''
+TODO: should be customizable with implements __match__ method
+'''
+
+
 from six import (iteritems, add_metaclass, )
 
 from .shorthand import MethodComposer
 from .shorthand import _append_operator_ploxy
+from .datatype import VariantType
 
 
 class _Wildcard(object):
     ''' In a boolean context, this instance always return True.
         On the other hand it is work as ploxy of MethodComposer.
     '''
+
     def __nonzero__(self):
         return True
 
@@ -29,7 +37,8 @@ class _Wildcard(object):
 Wildcard = _Wildcard()
 
 
-def _is_match(var, target, let_, expr):
+def _is_match(target, let_, expr):
+    var = expr.value
     # TODO: clean up
     if _is_match_as_lambda_mimic(var, target):
         try:
@@ -40,7 +49,8 @@ def _is_match(var, target, let_, expr):
         except AttributeError:
             return NotMatched
 
-
+    if _is_match_as_type_of_variant(var, target):
+        return MatchedAsTypeOfVariant(match_expr=expr, binder=None)  # ignore binder
     if _is_match_as_iterable(var, target):
         return MatchedAsIterable(match_expr=expr, binder=let_)
     if _is_match_as_dict(var, target):
@@ -48,6 +58,16 @@ def _is_match(var, target, let_, expr):
     if var == target:
         return MatchedResult(expr, let_)
     return NotMatched
+
+
+def _is_match_as_type_of_variant(var, targ):
+    ''' passed targ is type of variant, not instance.
+    '''
+    from inspect import getmro
+    if isinstance(targ, type):
+        if VariantType not in getmro(targ):
+            return False
+    return type(var) == targ
 
 
 def _is_match_as_lambda_mimic(var, targ):
@@ -78,6 +98,13 @@ class MatchedResult(object):
 
     def __call__(self, func):
         self.match_expr._match_result_holder = func()
+        del func
+
+
+class MatchedAsTypeOfVariant(MatchedResult):
+    def __call__(self, func):
+        # type of self.match_expr.value should VariantType
+        self.match_expr._match_result_holder = func(self.match_expr.value.value)
         del func
 
 
@@ -134,7 +161,7 @@ class Match(object):
         return self.__match(self.value, target, let_)
 
     def __match(self, value, target, let_):
-        is_equals = _is_match(self.value, target, let_, expr=self)
+        is_equals = _is_match(target, let_, expr=self)
         self._already_matched = is_equals is not NotMatched
         return is_equals
 

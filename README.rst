@@ -184,6 +184,20 @@ Pattern Match
    >>> assert match.end == 'python'
 
 
+   >>> # with datatype
+
+   >>> from masala.datatype import Right, Left
+
+   >>> match = Match(Either.right('python'))
+   >>> @match.when(Right)
+   ... def case_right(v):
+   ...     return v + ' is right!'
+   >>> @match.when(Left)
+   ... def case_left(v):
+   ...     assert False
+   >>> assert match.end == 'python is right!'
+
+
 
 call method with optional values
 -----------------------------------------------------------------

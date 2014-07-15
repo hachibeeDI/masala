@@ -6,10 +6,10 @@ from setuptools import (
     find_packages,
 )
 
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 
 
-with open('README.md') as f:
+with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
 
@@ -26,7 +26,7 @@ setup(
     long_description=LONG_DESCRIPTION,
     classifiers='''
 Programming Language :: Python
-Development Status :: 2 - Pre-Alpha
+Development Status :: 4 - Beta
 License :: OSI Approved :: MIT License
 Programming Language :: Python :: 2
 Programming Language :: Python :: 2.7

@@ -184,5 +184,5 @@ class TestStreamWithIterTools(unittest.TestCase):
 if __name__ == '__main__':
     doctest.ELLIPSIS = True
     doctest.NORMALIZE_WHITESPACE = True
-    doctest.testfile('README.md', optionflags=doctest.ELLIPSIS)
+    doctest.testfile('README.rst', optionflags=doctest.ELLIPSIS)
     unittest.main(verbosity=2)

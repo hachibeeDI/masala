@@ -42,6 +42,12 @@ class Left(Either):
     def __eq__(self, other):
         return isinstance(other, Left)
 
+    def __match__(self, other):
+        ''' only match with class object of List. not instance '''
+        if other == Left:
+            return True
+        return False
+
 
 class Right(Either):
     def bind(self, a_to_m_b):

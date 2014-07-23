@@ -19,3 +19,23 @@ class VariantType(object):
     def __rshift__(self, a_to_m_b):
         ''' >> '''
         return self.bind(a_to_m_b)
+
+    def __match__(self, other):
+        from inspect import getmro
+        # TODO: should refactor with single dispatch?
+        if isinstance(other, type):
+            if VariantType in getmro(other):
+                return type(self) == other
+            else:
+                return False
+
+        if isinstance(other, VariantType):
+            if type(self) == type(other):
+                return self.value == other.value
+        else:
+            return self.value == other
+
+        return False
+
+    def __evalucate_matches__(self, func):
+        return func(self.value, )

@@ -10,7 +10,24 @@ from six import (iteritems, add_metaclass, )
 
 from .shorthand import MethodComposer
 from .shorthand import _append_operator_ploxy
-from .datatype import VariantType
+
+
+class Matchable(object):
+    ''' interface to match with `pattern match` '''
+
+    def __match__(self, other):
+        return self == other
+
+    def __evalucate_matches__(self, func):
+        '''
+        Appoint 'how to bind values' to matched observer.
+
+        e.g:
+            return func(self.value, )
+            return func(*[self.value, ])
+            return func(**{'value': self.value,} )
+        '''
+        raise NotImplementedError
 
 
 class _Wildcard(object):
@@ -38,8 +55,8 @@ Wildcard = _Wildcard()
 
 
 def _is_match(target, let_, expr):
+    # TODO: refactor
     var = expr.value
-    # TODO: clean up
     if _is_match_as_lambda_mimic(var, target):
         try:
             if target.fin__()(var):
@@ -49,8 +66,11 @@ def _is_match(target, let_, expr):
         except AttributeError:
             return NotMatched
 
-    if _is_match_as_type_of_variant(var, target):
-        return MatchedAsTypeOfVariant(match_expr=expr, binder=None)  # ignore binder
+    if _is_matchable_type(var, target):
+        if var.__match__(target):
+            return MatchedValueIsMatchable(match_expr=expr, binder=None)  # ignore binder
+        else:
+            return NotMatched
     if _is_match_as_iterable(var, target):
         return MatchedAsIterable(match_expr=expr, binder=let_)
     if _is_match_as_dict(var, target):
@@ -60,14 +80,9 @@ def _is_match(target, let_, expr):
     return NotMatched
 
 
-def _is_match_as_type_of_variant(var, targ):
-    ''' passed targ is type of variant, not instance.
-    '''
-    from inspect import getmro
-    if isinstance(targ, type):
-        if VariantType not in getmro(targ):
-            return False
-    return type(var) == targ
+def _is_matchable_type(var, targ):
+    ''' var has method names __match__ '''
+    return hasattr(var, '__match__')
 
 
 def _is_match_as_lambda_mimic(var, targ):
@@ -101,10 +116,11 @@ class MatchedResult(object):
         del func
 
 
-class MatchedAsTypeOfVariant(MatchedResult):
+class MatchedValueIsMatchable(MatchedResult):
     def __call__(self, func):
-        # type of self.match_expr.value should VariantType
-        self.match_expr._match_result_holder = func(self.match_expr.value.value)
+        # :type: Matchable
+        matchable = self.match_expr.value
+        self.match_expr._match_result_holder = matchable.__evalucate_matches__(func)
         del func
 
 

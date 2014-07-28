@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import (print_function, division, absolute_import, )
 
+from sys import version_info
 
 from setuptools import (
     setup,
@@ -12,12 +14,21 @@ VERSION = '0.0.2'
 with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 
+REQUIRES = []
+with open('requirements.txt') as f:
+    REQUIRES.extend(l.strip() for l in f.readlines())
+
+
+if version_info[0] == 2:
+    with open('requirements_27.txt') as f:
+        REQUIRES.extend(l.strip() for l in f.readlines())
+REQUIRES = [r for r in REQUIRES if r]
 
 setup(
     name='masala',
     version=VERSION,
     packages=find_packages(),
-    install_requires=['six'],
+    install_requires=REQUIRES,
     author='OGURA_Daiki',
     author_email='8hachibee125@gmail.com',
     license='MIT',

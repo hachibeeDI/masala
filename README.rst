@@ -3,9 +3,9 @@
 Masala
 =================================================================
 
-build status
+Amuse a Python syntax.
 
-master
+master:
 
 .. image:: https://travis-ci.org/hachibeeDI/masala.svg?branch=master
     :target: https://travis-ci.org/hachibeeDI/masala
@@ -219,7 +219,6 @@ call method with optional values
    'nnnnn'
 
 
-
 Support
 =================================================================
 
@@ -227,4 +226,15 @@ tested version of Python is
 
 - 2.7
 - 3.4
+
+
+LICENCE
+=================================================================
+
+MIT
+
+Author
+=================================================================
+
+[OGURA_Daiki](https://github.com/hachibeeDI)
 

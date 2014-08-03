@@ -19,9 +19,6 @@ class _Guard(object):
             return owner
         return _
 
-    def is_none(self):
-        return self.owner.value is None
-
     def __eq__(self, other):
         return self.owner.value == other
 
@@ -57,13 +54,15 @@ class Perhaps(object):
             return val
 
     def __nonzero__(self):
-        return self.value
+        return self.value is not None
+
+    def __bool__(self):
+        return self.value is not None
 
 
 if __name__ == '__main__':
     st = Perhaps("hoge")._.upper()._.replace('H', 'n')
     assert st._ == u'nOGE'
-    assert type(st | (lambda s: s)) == unicode
     null = Perhaps(None)._.upper()._.replace('H', 'n')
     assert null.get() is None
     assert null.get_or('py') == 'py'
@@ -72,3 +71,5 @@ if __name__ == '__main__':
         (lambda xs: [x * 2 for x in xs]) >>
         (lambda xs: [x for x in xs if x % 4 == 0]))
     assert apply_case._ == [0,  4,  8,  12,  16]
+    assert bool(Perhaps(''))
+    assert not bool(Perhaps(None))

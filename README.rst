@@ -207,12 +207,12 @@ call method with optional values
    >>> from masala import Perhaps
 
    >>> p = Perhaps('hoge huga foo')
-   >>> p.try_('replace', 'huga', 'muoo').try_('upper').get()
+   >>> p._.replace('huga', 'muoo')._.upper().get()
    'HOGE MUOO FOO'
-   >>> p.apply(len).get()
+   >>> p >> (lambda st: len(st))
    13
 
-   >>> nonecase = Perhaps(None).try_('replace', 'huga', 'muoo').try_('upper')
+   >>> nonecase = Perhaps(None)._.replace('huga', 'muoo')._.upper()
    >>> nonecase.get()
 
    >>> nonecase.get_or('nnnnn')

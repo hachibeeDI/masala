@@ -4,35 +4,71 @@ from __future__ import (print_function, division, absolute_import, unicode_liter
 from operator import methodcaller
 
 
+class _Guard(object):
+    def __get__(self, owner, type=None):
+        self.owner = owner
+        return self
+
+    def __getattr__(self, name):
+        owner = self.owner
+        if owner.value is None:
+            return lambda *_, **__: owner
+
+        def _(*args, **kw):
+            owner.value = methodcaller(name, *args, **kw)(owner.value)
+            return owner
+        return _
+
+    def is_none(self):
+        return self.owner.value is None
+
+    def __eq__(self, other):
+        return self.owner.value == other
+
+
 class Perhaps(object):
+    _ = _Guard()
 
-    def __init__(self, var):
-        self.var = var
+    def __init__(self, value):
+        self.value = value
 
-    def try_(self, methodname, *args, **kw):
-        v = self.var
-        if v is None:
+    def __getattr__(self, name):
+        def _(*args, **kw):
+            self.value = methodcaller(name, *args, **kw)(self.value)
             return self
-        else:
-            self.var = methodcaller(methodname, *args, **kw)(v)
-            return self
+        return _
 
-    def apply(self, func, *args, **kw):
-        v = self.var
-        if v is None:
+    def __rshift__(self, other):
+        if self.value is None:
             return self
-        else:
-            self.var = func(self.var, *args, **kw)
-            return self
+        self.value = other(self.value)
+        return self
+
+    def __repr__(self):
+        return repr(self.value)
 
     def get(self):
-        return self.var
+        return self.value
 
     def get_or(self, val):
-        if self.var:
-            return self.var
+        if self.value:
+            return self.value
         else:
             return val
 
     def __nonzero__(self):
-        return self.var
+        return self.value
+
+
+if __name__ == '__main__':
+    st = Perhaps("hoge")._.upper()._.replace('H', 'n')
+    assert st._ == u'nOGE'
+    assert type(st | (lambda s: s)) == unicode
+    null = Perhaps(None)._.upper()._.replace('H', 'n')
+    assert null.get() is None
+    assert null.get_or('py') == 'py'
+    apply_case = (
+        Perhaps(range(10)) >>
+        (lambda xs: [x * 2 for x in xs]) >>
+        (lambda xs: [x for x in xs if x % 4 == 0]))
+    assert apply_case._ == [0,  4,  8,  12,  16]

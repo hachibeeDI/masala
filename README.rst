@@ -4,6 +4,8 @@ Masala
 =================================================================
 
 Amuse a Python syntax.
+Supports short hand lambda and monad types and null safe method calling kinda things with abuse operator overload.
+
 
 master:
 

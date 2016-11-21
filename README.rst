@@ -236,5 +236,4 @@ MIT
 Author
 =================================================================
 
-[OGURA_Daiki](https://github.com/hachibeeDI)
-
+`OGURA_Daiki <https://github.com/hachibeeDI>`_
